@@ -37,13 +37,13 @@ static char * logger_names[] = {
 		NULL
 };
 
-
-#define logger_debug(message, ...) {									\
+#define logger_debug(message , ...) {									\
 		char * file = __FILE__; int line = __LINE__; 						\
 		char tmpl[208] = {0};												\
 		snprintf(tmpl, sizeof(tmpl), "%s:%d %s", file, line, message);		\
-		logger_log(LOGGER_DEBUG, tmpl, __VA_ARGS__); 							\
+		logger_log(LOGGER_DEBUG, tmpl, ##__VA_ARGS__);\
 }
+
 
 
 void _logger_debug(const char * msg, const char * filename, int line, ...);
