@@ -1,5 +1,5 @@
 /*
- * laptop_event.h
+ * lt_event.h
  *
  *  Created on: 2012-8-22
  *      Author: hujin
@@ -9,8 +9,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifndef LAPTOP_EVENT_H_
-#define LAPTOP_EVENT_H_
+#ifndef LT_EVENT_H_
+#define LT_EVENT_H_
 
 typedef void (*power_state_changed_handler_t)(int ac_online);
 typedef void (*mouse_pluged_handler_t)();
@@ -26,19 +26,19 @@ struct event_item{
 
 
 
-typedef struct _laptop_event{
+typedef struct _lt_event{
 	int refcount;
 	int table_size;
 	int max_size;
 	struct event_item  items[20];
-}laptop_event_t;
+}lt_event_t;
 
-laptop_event_t * laptop_event_new();
-void laptop_event_bind(laptop_event_t * le, const char * name, handler_t handler);
-void laptop_event_unbind(laptop_event_t * le, const char * name);
-void laptop_event_unref(laptop_event_t * le);
+lt_event_t * lt_event_new();
+void lt_event_bind(lt_event_t * le, const char * name, handler_t handler);
+void lt_event_unbind(lt_event_t * le, const char * name);
+void lt_event_unref(lt_event_t * le);
 
-#define laptop_event_trigger(le, _name, ...) {				\
+#define lt_event_trigger(le, _name, ...) {				\
 	int i;														\
 	struct event_item * item;									\
 	for(i = 0; i < le->table_size; i ++) {						\
@@ -54,4 +54,4 @@ void laptop_event_unref(laptop_event_t * le);
 
 
 
-#endif /* LAPTOP_EVENT_H_ */
+#endif /* LT_EVENT_H_ */

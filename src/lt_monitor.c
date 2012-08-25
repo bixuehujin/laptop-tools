@@ -1,28 +1,28 @@
 /*
- * laptop_monitor.c
+ * lt_monitor.c
  *
  *  Created on: 2012-8-22
  *      Author: hujin
  */
 
-#include "laptop_monitor.h"
+#include "lt_monitor.h"
 #include "logger.h"
 #include <libudev.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-void laptop_monitor_init(laptop_monitor_t * lm);
+void lt_monitor_init(lt_monitor_t * lm);
 
-laptop_monitor_t * laptop_monitor_new() {
-	laptop_monitor_t * ret = malloc(sizeof(laptop_monitor_t));
+lt_monitor_t * lt_monitor_new() {
+	lt_monitor_t * ret = malloc(sizeof(lt_monitor_t));
 	if(!ret) return NULL;
-	memset(ret, 0, sizeof(laptop_monitor_t));
-	ret->le = laptop_event_new();
+	memset(ret, 0, sizeof(lt_monitor_t));
+	ret->le = lt_event_new();
 	if(!ret->le) {
 		free(ret);
 		return NULL;
 	}
-	laptop_monitor_init(ret);
+	lt_monitor_init(ret);
 	/*
 	struct udev_device * dev;
 	struct udev_list_entry * dev_list_entry, * devices;
@@ -41,7 +41,7 @@ laptop_monitor_t * laptop_monitor_new() {
 	return ret;
 }
 
-void laptop_monitor_init(laptop_monitor_t * lm) {
+void lt_monitor_init(lt_monitor_t * lm) {
 	lm->udev = udev_new();
 	lm->enumerate = udev_enumerate_new(lm->udev);
 	lm->monitor = udev_monitor_new_from_netlink(lm->udev, "udev");
@@ -52,7 +52,7 @@ void laptop_monitor_init(laptop_monitor_t * lm) {
 
 }
 
-void laptop_monitor_run(laptop_monitor_t * lm) {
+void lt_monitor_run(lt_monitor_t * lm) {
 	udev_monitor_enable_receiving(lm->monitor);
 	struct udev_device * dev;
 	struct udev_list_entry * entrys, *entry;
@@ -101,15 +101,15 @@ void laptop_monitor_run(laptop_monitor_t * lm) {
 		*/
 		if(dev) {
 			if(strcmp(subsystem, "power_supply") == 0) {
-				int online = laptop_monitor_is_power_online(lm);
+				int online = lt_monitor_is_power_online(lm);
 				if(online != -1) {
-					laptop_event_trigger(lm->le, "power_state_changed", online);
+					lt_event_trigger(lm->le, "power_state_changed", online);
 				}
 			}else if(strcmp(subsystem, "backlight") == 0) {
 				int backlight, max_backlight;
-				backlight = laptop_monitor_get_backlight(lm, &max_backlight);
+				backlight = lt_monitor_get_backlight(lm, &max_backlight);
 				if(backlight != -1) {
-					laptop_event_trigger(lm->le, "backlight_changed", backlight, max_backlight);
+					lt_event_trigger(lm->le, "backlight_changed", backlight, max_backlight);
 				}
 			}
 			udev_device_unref(lm->_device);
@@ -120,7 +120,7 @@ void laptop_monitor_run(laptop_monitor_t * lm) {
 }
 
 
-char * laptop_monitor_get_attr(laptop_monitor_t * lm,int group ,const char * name) {
+char * lt_monitor_get_attr(lt_monitor_t * lm,int group ,const char * name) {
 	switch(group) {
 	case LM_GROUP_BRIGHT:
 
@@ -139,7 +139,7 @@ char * laptop_monitor_get_attr(laptop_monitor_t * lm,int group ,const char * nam
 /**
  * name can be :backlight max_backlight
  */
-const char * laptop_monitor_get_bright_attr(laptop_monitor_t * lm, const char * name) {
+const char * lt_monitor_get_bright_attr(lt_monitor_t * lm, const char * name) {
 	struct udev_device * dev;
 	dev = udev_device_new_from_syspath(lm->udev, "/sys/class/backlight/acpi_video0");
 	const char * level =  udev_device_get_sysattr_value(dev, name);
@@ -149,7 +149,7 @@ const char * laptop_monitor_get_bright_attr(laptop_monitor_t * lm, const char * 
 /**
  * 1 for online , 0 for offline  . otherwise -1 returned
  */
-int laptop_monitor_is_power_online(laptop_monitor_t * lm) {
+int lt_monitor_is_power_online(lt_monitor_t * lm) {
 	const char * online = udev_device_get_sysattr_value(lm->_device, "online");
 	//printf("----%s----\n", online);
 	if(!online) return -1;
@@ -158,7 +158,7 @@ int laptop_monitor_is_power_online(laptop_monitor_t * lm) {
 }
 
 
-int laptop_monitor_get_backlight(laptop_monitor_t * lm, int * max) {
+int lt_monitor_get_backlight(lt_monitor_t * lm, int * max) {
 	static int olevel = -1;
 	const char * _level = udev_device_get_sysattr_value(lm->_device, "brightness");
 	int level = atoi(_level);
@@ -176,15 +176,15 @@ int laptop_monitor_get_backlight(laptop_monitor_t * lm, int * max) {
 }
 
 
-laptop_event_t * laptop_monitor_get_event(laptop_monitor_t * lm) {
+lt_event_t * lt_monitor_get_event(lt_monitor_t * lm) {
 	return lm->le;
 }
 
 
-void laptop_monitor_unref(laptop_monitor_t * lm) {
+void lt_monitor_unref(lt_monitor_t * lm) {
 	udev_enumerate_unref(lm->enumerate);
 	udev_monitor_unref(lm->monitor);
 	udev_unref(lm->udev);
-	laptop_event_unref(lm->le);
+	lt_event_unref(lm->le);
 	free(lm);
 }

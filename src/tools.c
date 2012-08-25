@@ -12,11 +12,12 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "logger.h"
-#include "laptop_event.h"
-#include "laptop_monitor.h"
+#include "lt_event.h"
+#include "lt_monitor.h"
 
 void on_power_state_changed(int online){
 	logger_debug("power state changed: %d", online);
+
 
 }
 void on_backlight_changed(int level, int max){
@@ -31,15 +32,15 @@ int main(void) {
 	logger_init("laptop-tools");
 
 
-	laptop_monitor_t * monitor = laptop_monitor_new();
-	laptop_event_t * le = laptop_monitor_get_event(monitor);
-	laptop_event_bind(le, "power_state_changed", on_power_state_changed);
-	laptop_event_bind(le, "backlight_changed", on_backlight_changed);
-	printf("the current backlight level is %s\n", laptop_monitor_get_bright_attr(monitor, "brightness"));
-	printf("the max backlight level is %s\n", laptop_monitor_get_bright_attr(monitor, "max_brightness"));
-	laptop_monitor_run(monitor);
+	lt_monitor_t * monitor = lt_monitor_new();
+	lt_event_t * le = lt_monitor_get_event(monitor);
+	lt_event_bind(le, "power_state_changed", on_power_state_changed);
+	lt_event_bind(le, "backlight_changed", on_backlight_changed);
+	printf("the current backlight level is %s\n", lt_monitor_get_bright_attr(monitor, "brightness"));
+	printf("the max backlight level is %s\n", lt_monitor_get_bright_attr(monitor, "max_brightness"));
+	lt_monitor_run(monitor);
 
-	laptop_monitor_unref(monitor);
+	lt_monitor_unref(monitor);
 	logger_close();
 	return 0;
 }
