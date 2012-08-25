@@ -13,6 +13,10 @@ PKG_CHECK_MODULES([libudev], [libudev])
 AC_SUBST([libudev_CFLAGS])
 AC_SUBST([libudev_LIBS])
 
+PKG_CHECK_MODULES([glib], [glib-2.0])
+AC_SUBST([glib_CFLAGS])
+AC_SUBST([glib_LIBS])
+
 AC_CONFIG_FILES(Makefile src/Makefile)
 AC_OUTPUT
 

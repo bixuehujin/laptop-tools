@@ -14,6 +14,7 @@
 #include "logger.h"
 #include "lt_event.h"
 #include "lt_monitor.h"
+#include "lt_settings.h"
 
 void on_power_state_changed(int online){
 	logger_debug("power state changed: %d", online);
@@ -31,6 +32,9 @@ int main(void) {
 	*/
 	logger_init("laptop-tools");
 
+	lt_settings_t * lts = lt_settings_new("/cproject/lt/src/lt.conf");
+	lt_settings_set_backlight(lts, 1, 3);
+	lt_settings_destroy(lts);
 
 	lt_monitor_t * monitor = lt_monitor_new();
 	lt_event_t * le = lt_monitor_get_event(monitor);
