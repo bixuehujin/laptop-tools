@@ -53,6 +53,11 @@ int lt_settings_get_touchpad_setting(lt_settings_t * lts) {
 }
 
 
+int lt_settings_is_use_separate_backlight(lt_settings_t * lts) {
+	return _lt_settings_get_integer(lts, "backlight", "use_separate_backlight");
+}
+
+
 void lt_settings_set_backlight(lt_settings_t * lts, int ac_online, int backlight) {
 	if(ac_online) {
 		g_key_file_set_integer(lts->ins, "backlight", "power_backlight", backlight);
@@ -66,6 +71,12 @@ void lt_settings_set_backlight(lt_settings_t * lts, int ac_online, int backlight
 void lt_settings_set_touchpad_setting(lt_settings_t * lts, int state) {
 	lts->dirty = 1;
 	g_key_file_set_integer(lts->ins, "touchpad", "disabled", state);
+}
+
+
+void lt_settings_set_use_separate_backlight(lt_settings_t * lts) {
+	g_key_file_set_boolean(lts->ins, "backlight", "use_separate_backlight", TRUE);
+	lts->dirty = 1;
 }
 
 

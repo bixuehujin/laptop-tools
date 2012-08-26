@@ -1,9 +1,13 @@
 bin_PROGRAMS=tools-daemon
-tools_daemon_SOURCES=tools.c\
+tools_daemon_SOURCES=\
+	tools.c\
 	logger.c\
 	lt_event.c\
 	lt_monitor.c\
-	lt_settings.c
+	lt_settings.c\
+	handlers.c\
+	lt_instance.c\
+	lt_device.c
 
 
 tools_daemon_LDFLAGS=-ludev

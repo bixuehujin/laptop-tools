@@ -26,6 +26,10 @@ void lt_settings_set_backlight(lt_settings_t * lts, int ac_online, int backlight
 
 void lt_settings_set_touchpad_setting(lt_settings_t * lts, int state);
 
+int lt_settings_is_use_separate_backlight(lt_settings_t * lts);
+
+void lt_settings_set_use_separate_backlight(lt_settings_t * lts);
+
 void lt_settings_flush(lt_settings_t * lts);
 
 void lt_settings_destroy(lt_settings_t * lts);

@@ -13,6 +13,7 @@
 
 void lt_monitor_init(lt_monitor_t * lm);
 
+
 lt_monitor_t * lt_monitor_new() {
 	lt_monitor_t * ret = malloc(sizeof(lt_monitor_t));
 	if(!ret) return NULL;
@@ -41,6 +42,7 @@ lt_monitor_t * lt_monitor_new() {
 	return ret;
 }
 
+
 void lt_monitor_init(lt_monitor_t * lm) {
 	lm->udev = udev_new();
 	lm->enumerate = udev_enumerate_new(lm->udev);
@@ -48,9 +50,8 @@ void lt_monitor_init(lt_monitor_t * lm) {
 	udev_monitor_filter_add_match_subsystem_devtype(lm->monitor, "hidraw", NULL);
 	udev_monitor_filter_add_match_subsystem_devtype(lm->monitor, "backlight", NULL);
 	udev_monitor_filter_add_match_subsystem_devtype(lm->monitor, "power_supply", NULL);
-
-
 }
+
 
 void lt_monitor_run(lt_monitor_t * lm) {
 	udev_monitor_enable_receiving(lm->monitor);
@@ -136,6 +137,7 @@ char * lt_monitor_get_attr(lt_monitor_t * lm,int group ,const char * name) {
 	return NULL;
 }
 
+
 /**
  * name can be :backlight max_backlight
  */
@@ -145,6 +147,7 @@ const char * lt_monitor_get_bright_attr(lt_monitor_t * lm, const char * name) {
 	const char * level =  udev_device_get_sysattr_value(dev, name);
 	return level;
 }
+
 
 /**
  * 1 for online , 0 for offline  . otherwise -1 returned

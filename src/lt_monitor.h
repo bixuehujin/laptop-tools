@@ -25,7 +25,22 @@ typedef struct _lt_monitor {
 
 
 lt_monitor_t * lt_monitor_new();
-char * lt_monitor_get_attr(lt_monitor_t * lm,int group ,const char * name);
-int lt_monitor_get_udev_fd(lt_monitor_t * lm);
+
+void lt_monitor_init(lt_monitor_t * lm);
+
 void lt_monitor_run(lt_monitor_t * lm);
+
+char * lt_monitor_get_attr(lt_monitor_t * lm,int group ,const char * name);
+
+const char * lt_monitor_get_bright_attr(lt_monitor_t * lm, const char * name);
+
+int lt_monitor_is_power_online(lt_monitor_t * lm);
+
+int lt_monitor_get_backlight(lt_monitor_t * lm, int * max);
+
+lt_event_t * lt_monitor_get_event(lt_monitor_t * lm);
+
+void lt_monitor_unref(lt_monitor_t * lm);
+
+
 #endif /* LT_MONITOR_H_ */
