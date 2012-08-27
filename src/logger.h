@@ -47,7 +47,7 @@ static char * logger_names[] = {
 
 
 void _logger_debug(const char * msg, const char * filename, int line, ...);
-void logger_init(const char * ident);
+void logger_init(const char * ident, int daemon);
 
 void logger_log(int priority, const char * msg, ...);
 

@@ -29,3 +29,11 @@ void on_backlight_changed(int level, int max){
 	lt_settings_set_backlight(lt_instance.lts, online, level);
 	lt_settings_flush(lt_instance.lts);
 }
+
+
+void on_signal_term() {
+	logger_debug("Received term signal, Exiting ...");
+	lt_instance_destroy();
+	exit(0);
+}
+
