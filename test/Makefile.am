@@ -1,4 +1,4 @@
-bin_PROGRAMS=mouse
+noinst_PROGRAMS=mouse
 mouse_SOURCES=mouse.c
 
 

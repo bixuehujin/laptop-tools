@@ -31,9 +31,10 @@ void lt_parse_arguments(int argc, char * argv[]) {
 			{"help", 	no_argument, 	0, 'h'},
 			{"daemon", 	no_argument, 	0, 'd'},
 			{"version", no_argument, 	0, 'v'},
+			{"config",  required_argument, 	0, 'c'},
 			{0, 		0, 				0,  0 }
 		};
-		c = getopt_long(argc, argv, "hdv", long_options, &option_index);
+		c = getopt_long(argc, argv, "hdvc", long_options, &option_index);
 		if(c == -1) {
 			break;
 		}
@@ -48,6 +49,9 @@ void lt_parse_arguments(int argc, char * argv[]) {
 
 			case 'v':
 				do_print_version();
+				break;
+			case 'c':
+
 				break;
 			case '?':
 				invalid = 1;
