@@ -1,5 +1,5 @@
-bin_PROGRAMS=tools-daemon
-tools_daemon_SOURCES=\
+bin_PROGRAMS=laptop-tools-daemon
+laptop_tools_daemon_SOURCES=\
 	tools.c\
 	logger.c\
 	lt_event.c\
@@ -10,5 +10,5 @@ tools_daemon_SOURCES=\
 	lt_device.c
 
 
-tools_daemon_LDFLAGS=-ludev
-tools_daemon_CFLAGS=`pkg-config --libs --cflags glib-2.0`
+laptop_tools_daemon_LDFLAGS=-ludev
+laptop_tools_daemon_CFLAGS=`pkg-config --libs --cflags glib-2.0`

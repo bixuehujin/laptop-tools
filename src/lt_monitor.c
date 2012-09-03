@@ -232,6 +232,7 @@ int lt_monitor_is_mouse_plugged(lt_monitor_t * lm) {
 
 		if(device && device_is_mouse(device)) {
 			ret ++;
+			udev_device_unref(device);
 		}
 	}
 
