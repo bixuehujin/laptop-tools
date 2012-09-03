@@ -38,3 +38,14 @@ int lt_device_is_power_online() {
 	read(fd, &str, sizeof(str));
 	return atoi(str);
 }
+
+
+/**
+ * ctrl : 1 for enable touchpad , 0 disable touchpad
+ */
+int lt_device_control_touchpad(int ctl) {
+	char cmd[50] = {0};
+	sprintf(cmd, "synclient Touchpadoff=%d", ctl ? 0 : 1);
+	int ret = system(cmd);
+	return ret == 0 ? 1 : 0;
+}

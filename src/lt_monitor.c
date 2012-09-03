@@ -11,7 +11,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+static char * backlist[] = {
+		"11/2/a/0",
+		"11/2/5/7326",
+		NULL
+};
+
 void lt_monitor_init(lt_monitor_t * lm);
+int lt_monitor_is_mouse_plugged(lt_monitor_t * lm);
+
+int device_is_mouse(struct udev_device * device) {
+	const char * product;
+	if(!(product = udev_device_get_property_value(device, "PRODUCT"))) {
+		return 0;
+	}
+
+	int i;
+	for(i = 0; backlist[i]; i ++) {
+		if(strcmp(backlist[i], product) == 0) {
+			return 0;
+		}
+	}
+
+	return 1;
+}
 
 
 lt_monitor_t * lt_monitor_new() {
@@ -50,6 +73,7 @@ void lt_monitor_init(lt_monitor_t * lm) {
 	udev_monitor_filter_add_match_subsystem_devtype(lm->monitor, "hidraw", NULL);
 	udev_monitor_filter_add_match_subsystem_devtype(lm->monitor, "backlight", NULL);
 	udev_monitor_filter_add_match_subsystem_devtype(lm->monitor, "power_supply", NULL);
+	udev_monitor_filter_add_match_subsystem_devtype(lm->monitor, "input", NULL);
 }
 
 
@@ -95,11 +119,11 @@ void lt_monitor_run(lt_monitor_t * lm) {
 				printf("	%s:%s\n", name, value);
 			}
 
-			udev_device_unref(dev);
 		}else {
 			printf("No Devices, An error occured\n");
 		}
 		*/
+
 		if(dev) {
 			if(strcmp(subsystem, "power_supply") == 0) {
 				int online = lt_monitor_is_power_online(lm);
@@ -111,6 +135,10 @@ void lt_monitor_run(lt_monitor_t * lm) {
 				backlight = lt_monitor_get_backlight(lm, &max_backlight);
 				if(backlight != -1) {
 					lt_event_trigger(lm->le, "backlight_changed", backlight, max_backlight);
+				}
+			}else if(strcmp(subsystem, "input") ==  0) {
+				if(device_is_mouse(dev)) {
+					lt_event_trigger(lm->le, "mouse_state_changed", lt_monitor_is_mouse_plugged(lm));
 				}
 			}
 			udev_device_unref(lm->_device);
@@ -181,6 +209,33 @@ int lt_monitor_get_backlight(lt_monitor_t * lm, int * max) {
 
 lt_event_t * lt_monitor_get_event(lt_monitor_t * lm) {
 	return lm->le;
+}
+
+
+int lt_monitor_is_mouse_plugged(lt_monitor_t * lm) {
+	struct udev_enumerate * enumerate = lm->enumerate;
+
+	udev_enumerate_add_match_subsystem(enumerate, "input");
+	udev_enumerate_add_match_property(enumerate, "ID_INPUT_MOUSE", "1");
+	udev_enumerate_scan_devices(enumerate);
+
+	struct udev_list_entry * entrys, * entry;
+	const char * path, * product;
+	struct udev_device * device;
+	int ret = 0;
+
+	entrys =udev_enumerate_get_list_entry(enumerate);
+
+	udev_list_entry_foreach(entry, entrys) {
+		path = udev_list_entry_get_name(entry);
+		device = udev_device_new_from_syspath(lm->udev, path);
+
+		if(device && device_is_mouse(device)) {
+			ret ++;
+		}
+	}
+
+	return ret;
 }
 
 

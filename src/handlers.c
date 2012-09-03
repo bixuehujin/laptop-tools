@@ -31,6 +31,15 @@ void on_backlight_changed(int level, int max){
 }
 
 
+void on_mouse_state_changed(int count) {
+	logger_log(LOGGER_INFO, "mouse state changed, current mouse count %d\n", count);
+	int state = lt_settings_get_touchpad_setting(lt_instance.lts);
+	if(state == 2) {
+		lt_device_control_touchpad(count == 0 ? 1 : 0);
+	}
+}
+
+
 void on_signal_term() {
 	logger_debug("Received term signal, Exiting ...");
 	lt_instance_destroy();

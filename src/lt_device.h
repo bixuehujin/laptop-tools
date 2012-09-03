@@ -12,4 +12,6 @@ void lt_setter_set_backlight(int backlight);
 
 int lt_device_is_power_online();
 
+int lt_device_control_touchpad(int ctl);
+
 #endif /* LT_SETTER_H_ */

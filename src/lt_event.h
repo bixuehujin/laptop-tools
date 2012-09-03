@@ -13,8 +13,7 @@
 #define LT_EVENT_H_
 
 typedef void (*power_state_changed_handler_t)(int ac_online);
-typedef void (*mouse_pluged_handler_t)();
-typedef void (*mouse_unpluged_handler_t)();
+typedef void (*mouse_state_changed_handler_t)(int mouse_count);
 typedef void (*backlight_changed_handler_t)();
 typedef void (*handler_t)();
 

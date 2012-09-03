@@ -13,6 +13,8 @@ void on_power_state_changed(int online);
 
 void on_backlight_changed(int level, int max);
 
+void on_mouse_state_changed(int count);
+
 void on_signal_term();
 
 void on_signal_tstp();

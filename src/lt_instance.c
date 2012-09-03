@@ -83,6 +83,8 @@ void lt_instance_init(int argc, char *argv[]) {
 void lt_instance_main() {
 	lt_event_bind(lt_instance.lte, "power_state_changed", on_power_state_changed);
 	lt_event_bind(lt_instance.lte, "backlight_changed", on_backlight_changed);
+	lt_event_bind(lt_instance.lte, "mouse_state_changed", on_mouse_state_changed);
+
 	lt_monitor_run(lt_instance.ltm);
 }
 
