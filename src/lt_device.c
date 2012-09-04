@@ -49,14 +49,8 @@ int lt_device_is_power_online() {
  */
 int lt_device_control_touchpad(int ctl) {
 
-	const char * name = lt_monitor_get_touchpad_name(lt_instance.ltm);
-	char cmd[100] = {0};
-	int ret = 0;
-	if(name) {
-		sprintf(cmd, "xinput set-prop '%s' 'Device Enabled' %d ",name ,ctl);
-		ret = system(cmd);
-		logger_log(LOGGER_INFO, "%s : %d\n",cmd, ret);
-	}
-
-	return ret;
+	char cmd[50] = {0};
+	sprintf(cmd, "synclient Touchpadoff=%d", ctl ? 0 : 1);
+	int ret = system(cmd);
+	return ret == 0 ? 1 : 0;
 }
