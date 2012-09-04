@@ -55,7 +55,8 @@ int lt_device_control_touchpad(int ctl) {
 	if(name) {
 		sprintf(cmd, "xinput set-prop '%s' 'Device Enabled' %d ",name ,ctl);
 		ret = system(cmd);
+		logger_log(LOGGER_INFO, "%s : %d\n",cmd, ret);
 	}
-	printf("%s : %d\n",name, ret);
+
 	return ret;
 }
