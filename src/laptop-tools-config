@@ -32,8 +32,8 @@ function do_set_separate_backlight() {
 	read -p "Choose(y|n):" setting 
 	[ -z $setting ] && setting="y"
 	
-	settings='true'
-	[ $setting = 'n' ] && settings='false'
+	settings='1'
+	[ $setting = 'n' ] && settings='0'
 
 	save_config_value use_separate_backlight $settings
 }

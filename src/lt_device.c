@@ -12,6 +12,10 @@
 #include <fcntl.h>
 #include "logger.h"
 #include "errno.h"
+#include "lt_monitor.h"
+#include "lt_instance.h"
+
+extern lt_instance_t lt_instance;
 
 void lt_device_set_backlight(int backlight) {
 	int fd = open("/sys/class/backlight/acpi_video0/brightness", O_WRONLY);
@@ -44,8 +48,14 @@ int lt_device_is_power_online() {
  * ctrl : 1 for enable touchpad , 0 disable touchpad
  */
 int lt_device_control_touchpad(int ctl) {
-	char cmd[50] = {0};
-	sprintf(cmd, "synclient Touchpadoff=%d", ctl ? 0 : 1);
-	int ret = system(cmd);
-	return ret == 0 ? 1 : 0;
+
+	const char * name = lt_monitor_get_touchpad_name(lt_instance.ltm);
+	char cmd[100] = {0};
+	int ret = 0;
+	if(name) {
+		sprintf(cmd, "xinput set-prop '%s' 'Device Enabled' %d ",name ,ctl);
+		ret = system(cmd);
+	}
+	printf("%s : %d\n",name, ret);
+	return ret;
 }

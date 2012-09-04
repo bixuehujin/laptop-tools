@@ -26,7 +26,12 @@ void on_backlight_changed(int level, int max){
 		logger_log(LOGGER_WARNING, "Fetch power state failed.");
 		return;
 	}
-	lt_settings_set_backlight(lt_instance.lts, online, level);
+	if(lt_settings_is_use_separate_backlight(lt_instance.lts)) {
+		lt_settings_set_backlight(lt_instance.lts, online, level);
+	}else {
+		lt_settings_set_backlight(lt_instance.lts, 1, level);
+	}
+
 	lt_settings_flush(lt_instance.lts);
 }
 
@@ -36,6 +41,33 @@ void on_mouse_state_changed(int count) {
 	int state = lt_settings_get_touchpad_setting(lt_instance.lts);
 	if(state == 2) {
 		lt_device_control_touchpad(count == 0 ? 1 : 0);
+	}
+}
+
+
+void on_init() {
+	logger_log(LOGGER_INFO, "laptop-tools init completed");
+
+	//mouse
+	int use_separate , online;
+	use_separate = lt_settings_is_use_separate_backlight(lt_instance.lts);
+	if(use_separate) {
+		online = lt_device_is_power_online();
+		lt_device_set_backlight(lt_settings_get_backlight(lt_instance.lts, online));
+	}else {
+		lt_device_set_backlight(lt_settings_get_backlight(lt_instance.lts, 1));
+	}
+
+	//touchpad
+	int touchpad_status = lt_settings_get_touchpad_setting(lt_instance.lts);
+	if(touchpad_status == 2) {
+		if(lt_monitor_is_mouse_plugged(lt_instance.ltm)) {
+			lt_device_control_touchpad(0);
+		}else {
+			lt_device_control_touchpad(1);
+		}
+	}else if(touchpad_status == 3) {
+		lt_device_control_touchpad(0);
 	}
 }
 

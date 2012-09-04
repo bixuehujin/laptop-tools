@@ -78,6 +78,9 @@ void lt_monitor_init(lt_monitor_t * lm) {
 
 
 void lt_monitor_run(lt_monitor_t * lm) {
+
+	lt_event_trigger(lm->le, "init");
+
 	udev_monitor_enable_receiving(lm->monitor);
 	struct udev_device * dev;
 	struct udev_list_entry * entrys, *entry;
@@ -237,6 +240,38 @@ int lt_monitor_is_mouse_plugged(lt_monitor_t * lm) {
 	}
 
 	return ret;
+}
+
+
+const char * lt_monitor_get_touchpad_name(lt_monitor_t * lm) {
+
+	struct udev_enumerate * enumerate = udev_enumerate_new(lm->udev);
+	udev_enumerate_add_match_subsystem(enumerate, "input");
+	udev_enumerate_add_match_property(enumerate, "ID_INPUT_TOUCHPAD", "1");
+	udev_enumerate_scan_devices(enumerate);
+
+	struct udev_list_entry * entrys, * entry;
+	const char * path, * product, *name;
+	struct udev_device * device;
+	static  char  ret[50] = {0};
+
+	entrys =udev_enumerate_get_list_entry(enumerate);
+
+	udev_list_entry_foreach(entry, entrys) {
+		path = udev_list_entry_get_name(entry);
+		device = udev_device_new_from_syspath(lm->udev, path);
+		name = udev_device_get_sysattr_value(device, "name");
+
+		if(name) {
+			strcpy(ret, name);
+		}
+		udev_device_unref(device);
+		if(name) {
+			return ret;
+		}
+	}
+
+	return NULL;
 }
 
 

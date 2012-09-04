@@ -51,7 +51,9 @@ void lt_parse_arguments(int argc, char * argv[]) {
 				do_print_version();
 				break;
 			case 'c':
-
+				if(optarg) {
+					strcpy(lt_instance.config, optarg);
+				}
 				break;
 			case '?':
 				invalid = 1;
@@ -77,7 +79,7 @@ void lt_parse_arguments(int argc, char * argv[]) {
 void lt_instance_init(int argc, char *argv[]) {
 	lt_parse_arguments(argc, argv);
 
-	lt_instance.lts = lt_settings_new("/cproject/lt/src/lt.conf");
+	lt_instance.lts = lt_settings_new(lt_instance.config);
 	lt_instance.ltm = lt_monitor_new();
 	lt_instance.lte = lt_monitor_get_event(lt_instance.ltm);
 	signal(SIGTERM, on_signal_term);
@@ -88,6 +90,7 @@ void lt_instance_main() {
 	lt_event_bind(lt_instance.lte, "power_state_changed", on_power_state_changed);
 	lt_event_bind(lt_instance.lte, "backlight_changed", on_backlight_changed);
 	lt_event_bind(lt_instance.lte, "mouse_state_changed", on_mouse_state_changed);
+	lt_event_bind(lt_instance.lte, "init", on_init);
 
 	lt_monitor_run(lt_instance.ltm);
 }

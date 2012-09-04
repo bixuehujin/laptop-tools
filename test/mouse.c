@@ -56,6 +56,33 @@ void device_print_props(struct udev_device * device) {
 }
 
 
+int list_touchpad_devices() {
+	struct udev *udev = udev_new();
+		struct udev_enumerate * enumerate = udev_enumerate_new(udev);
+		udev_enumerate_add_match_subsystem(enumerate, "input");
+		//udev_enumerate_add_match_sysattr(enumerate, "ID_INPUT_MOUSE", "1");
+		udev_enumerate_add_match_property(enumerate, "ID_INPUT_TOUCHPAD", "1");
+		udev_enumerate_scan_devices(enumerate);
+
+		struct udev_list_entry * entrys  =udev_enumerate_get_list_entry(enumerate);
+		struct udev_list_entry * entry;
+		const char * path;
+		struct udev_device * device;
+		udev_list_entry_foreach(entry, entrys) {
+			path = udev_list_entry_get_name(entry);
+			device = udev_device_new_from_syspath(udev, path);
+			const char * product;
+			//printf("find device: %s\n", path);
+			//if(device && device_is_mouse(device)) {
+				device_print_sysattr(device);
+				device_print_props(device);
+			//}
+		}
+
+		return 1;
+}
+
+
 int list_mouse_devices() {
 	struct udev *udev = udev_new();
 	struct udev_enumerate * enumerate = udev_enumerate_new(udev);
@@ -85,6 +112,8 @@ int list_mouse_devices() {
 
 int main(int argc, char **argv) {
 	list_mouse_devices();
+	printf("\n\n----------------touchpad------------------\n");
+	list_touchpad_devices();
 	int i;
 	for(i = 0; backlist[i]; i ++) {
 		printf("%s\n", backlist[i]);

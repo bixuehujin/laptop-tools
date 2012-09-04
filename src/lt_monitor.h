@@ -42,5 +42,6 @@ lt_event_t * lt_monitor_get_event(lt_monitor_t * lm);
 
 void lt_monitor_unref(lt_monitor_t * lm);
 
+const char * lt_monitor_get_touchpad_name(lt_monitor_t * lm);
 
 #endif /* LT_MONITOR_H_ */

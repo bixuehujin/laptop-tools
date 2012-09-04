@@ -16,6 +16,7 @@ typedef struct lt_instance {
 	lt_settings_t * lts;
 	lt_monitor_t * ltm;
 	lt_event_t * lte;
+	char config[50];
 }lt_instance_t;
 
 

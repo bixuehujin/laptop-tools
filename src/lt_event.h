@@ -15,6 +15,7 @@
 typedef void (*power_state_changed_handler_t)(int ac_online);
 typedef void (*mouse_state_changed_handler_t)(int mouse_count);
 typedef void (*backlight_changed_handler_t)();
+typedef void (*init_handler_t)();
 typedef void (*handler_t)();
 
 struct event_item{

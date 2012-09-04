@@ -49,7 +49,7 @@ int lt_settings_get_backlight(lt_settings_t * lts, int ac_online) {
 
 
 int lt_settings_get_touchpad_setting(lt_settings_t * lts) {
-	return _lt_settings_get_integer(lts, "touchpad", "disabled");
+	return _lt_settings_get_integer(lts, "touchpad", "touchpad_disabled");
 }
 
 
@@ -70,7 +70,7 @@ void lt_settings_set_backlight(lt_settings_t * lts, int ac_online, int backlight
 
 void lt_settings_set_touchpad_setting(lt_settings_t * lts, int state) {
 	lts->dirty = 1;
-	g_key_file_set_integer(lts->ins, "touchpad", "disabled", state);
+	g_key_file_set_integer(lts->ins, "touchpad", "touchpad_disabled", state);
 }
 
 

@@ -15,6 +15,8 @@ void on_backlight_changed(int level, int max);
 
 void on_mouse_state_changed(int count);
 
+void on_init();
+
 void on_signal_term();
 
 void on_signal_tstp();
