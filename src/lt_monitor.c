@@ -7,34 +7,14 @@
 
 #include "lt_monitor.h"
 #include "logger.h"
+#include "lt_device.h"
 #include <libudev.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-static char * backlist[] = {
-		"11/2/a/0",
-		"11/2/5/7326",
-		NULL
-};
 
 void lt_monitor_init(lt_monitor_t * lm);
 int lt_monitor_is_mouse_plugged(lt_monitor_t * lm);
-
-int device_is_mouse(struct udev_device * device) {
-	const char * product;
-	if(!(product = udev_device_get_property_value(device, "PRODUCT"))) {
-		return 0;
-	}
-
-	int i;
-	for(i = 0; backlist[i]; i ++) {
-		if(strcmp(backlist[i], product) == 0) {
-			return 0;
-		}
-	}
-
-	return 1;
-}
 
 
 lt_monitor_t * lt_monitor_new() {
@@ -140,7 +120,7 @@ void lt_monitor_run(lt_monitor_t * lm) {
 					lt_event_trigger(lm->le, "backlight_changed", backlight, max_backlight);
 				}
 			}else if(strcmp(subsystem, "input") ==  0) {
-				if(device_is_mouse(dev)) {
+				if(lt_device_is_mouse(dev)) {
 					lt_event_trigger(lm->le, "mouse_state_changed", lt_monitor_is_mouse_plugged(lm));
 				}
 			}
@@ -233,7 +213,7 @@ int lt_monitor_is_mouse_plugged(lt_monitor_t * lm) {
 		path = udev_list_entry_get_name(entry);
 		device = udev_device_new_from_syspath(lm->udev, path);
 
-		if(device && device_is_mouse(device)) {
+		if(device && lt_device_is_mouse(device)) {
 			ret ++;
 			udev_device_unref(device);
 		}

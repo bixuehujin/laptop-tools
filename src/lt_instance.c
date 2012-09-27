@@ -21,7 +21,7 @@ lt_instance_t lt_instance;
 void do_print_help();
 void do_print_version();
 void do_run(int as_daemon);
-
+void do_restore();
 
 void lt_parse_arguments(int argc, char * argv[]) {
 	int c, arg_count = 0, invalid = 0;
@@ -32,9 +32,10 @@ void lt_parse_arguments(int argc, char * argv[]) {
 			{"daemon", 	no_argument, 	0, 'd'},
 			{"version", no_argument, 	0, 'v'},
 			{"config",  required_argument, 	0, 'c'},
+			{"restore",  no_argument,	0,	'r'},
 			{0, 		0, 				0,  0 }
 		};
-		c = getopt_long(argc, argv, "hdvc", long_options, &option_index);
+		c = getopt_long(argc, argv, "hdvcr", long_options, &option_index);
 		if(c == -1) {
 			break;
 		}
@@ -54,6 +55,9 @@ void lt_parse_arguments(int argc, char * argv[]) {
 				if(optarg) {
 					strcpy(lt_instance.config, optarg);
 				}
+				break;
+			case 'r':
+				do_restore();
 				break;
 			case '?':
 				invalid = 1;
@@ -131,3 +135,20 @@ void do_run(int as_daemon) {
 	logger_init("laptop-tools", as_daemon);
 }
 
+
+/*now only restore touchpad settings*/
+void do_restore() {
+	lt_settings_t * lts = lt_settings_new(lt_instance.config);
+	int touchpad_status = lt_settings_get_touchpad_setting(lts);
+	if(touchpad_status == 2) {
+		if(lt_device_is_mouse_plugged()) {
+			lt_device_control_touchpad(0);
+		}else {
+			lt_device_control_touchpad(1);
+		}
+	}else if(touchpad_status == 3) {
+		lt_device_control_touchpad(0);
+	}
+	lt_settings_destroy(lts);
+	exit(0);
+}

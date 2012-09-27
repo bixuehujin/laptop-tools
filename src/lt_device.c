@@ -10,12 +10,37 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <libudev.h>
 #include "logger.h"
 #include "errno.h"
 #include "lt_monitor.h"
 #include "lt_instance.h"
 
+
 extern lt_instance_t lt_instance;
+
+static char * backlist[] = {
+		"11/2/a/0",
+		"11/2/5/7326",
+		NULL
+};
+
+int lt_device_is_mouse(struct udev_device * device) {
+	const char * product;
+	if(!(product = udev_device_get_property_value(device, "PRODUCT"))) {
+		return 0;
+	}
+
+	int i;
+	for(i = 0; backlist[i]; i ++) {
+		if(strcmp(backlist[i], product) == 0) {
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
 
 void lt_device_set_backlight(int backlight) {
 	int fd = open("/sys/class/backlight/acpi_video0/brightness", O_WRONLY);
@@ -49,8 +74,43 @@ int lt_device_is_power_online() {
  */
 int lt_device_control_touchpad(int ctl) {
 
-	char cmd[50] = {0};
-	sprintf(cmd, "synclient Touchpadoff=%d", ctl ? 0 : 1);
+	char * display = getenv("DISPLAY");
+	logger_log(LOGGER_INFO, "using display %s", display);
+	setenv("DISPLAY", ":0.0", 1);
+	char cmd[100] = {0};
+	sprintf(cmd, "/usr/bin/synclient TouchpadOff=%d >> /home/hujin/synclient.log", ctl ? 0 : 1);
 	int ret = system(cmd);
+	logger_log(LOGGER_INFO, "execute command synclient( %s ) with exit status %d\n", cmd, ret);
 	return ret == 0 ? 1 : 0;
+}
+
+
+int lt_device_is_mouse_plugged() {
+	struct udev * udev = udev_new();
+	struct udev_enumerate * enumerate = udev_enumerate_new(udev);
+
+	udev_enumerate_add_match_subsystem(enumerate, "input");
+	udev_enumerate_add_match_property(enumerate, "ID_INPUT_MOUSE", "1");
+	udev_enumerate_scan_devices(enumerate);
+
+	struct udev_list_entry * entrys, * entry;
+	const char * path, * product;
+	struct udev_device * device;
+	int ret = 0;
+
+	entrys =udev_enumerate_get_list_entry(enumerate);
+
+	udev_list_entry_foreach(entry, entrys) {
+		path = udev_list_entry_get_name(entry);
+		device = udev_device_new_from_syspath(udev, path);
+
+		if(device && lt_device_is_mouse(device)) {
+			ret ++;
+			udev_device_unref(device);
+		}
+	}
+	udev_enumerate_unref(enumerate);
+	udev_unref(udev);
+
+	return ret;
 }

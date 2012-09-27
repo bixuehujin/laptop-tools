@@ -9,7 +9,6 @@ laptop_tools_daemon_SOURCES=\
 	lt_instance.c\
 	lt_device.c
 
-bin_SCRIPTS = laptop-tools laptop-tools-config
 
 laptop_tools_daemon_LDFLAGS=-ludev
 laptop_tools_daemon_CFLAGS=`pkg-config --libs --cflags glib-2.0`
