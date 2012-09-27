@@ -1,0 +1,89 @@
+#! /bin/bash
+
+function lookup_config_file() {
+	paths="/etc /usr/etc /usr/local/etc"
+	for path in $paths
+	do
+		file=$path/laptop-tools/lt.conf
+		if [ -r $file ]; then 
+			echo $file; exit 0
+		fi
+	done
+	exit 1;
+}
+
+config_file=`lookup_config_file`
+
+function get_config_value() {
+	name=$1
+	cat $config_file | sed -n "s/$name=//gp" 
+}
+
+function save_config_value() {
+	name=$1
+	value=$2
+	sed -i "s/$name=.*/$name=$value/g" $config_file
+}
+
+
+function do_set_separate_backlight() {
+	echo "use separate backlight or not"
+	echo ''
+	read -p "Choose(y|n):" setting 
+	[ -z $setting ] && setting="y"
+	
+	settings='1'
+	[ $setting = 'n' ] && settings='0'
+
+	save_config_value use_separate_backlight $settings
+}
+
+
+function do_set_touchpad_disabled() {
+	echo 'set touchpad status:'
+	echo '    1. do not disable touchpad'
+	echo '    2. disable touchpad when mouse pluged'
+	echo '    3. disable touchpad permantly'
+	
+	while :
+	do
+		read -p "Choose(1|2|3):" value
+		[ -z $value ] && value='2' 
+		
+		if ! [[ $value = '1' || $value = '2' || $value = '3' ]] ; then
+			echo 'iligel value!'
+			continue
+		else
+			break
+		fi
+	done
+	
+	save_config_value touchpad_disabled $value
+}
+
+user=`whoami`
+if [ $user != 'root' ]; then 
+	echo 'Need super premission to run the script.' 
+	exit 1
+fi
+
+
+for key in use_separate_backlight touchpad_disabled
+do
+	case $key in
+		use_separate_backlight)
+			do_set_separate_backlight		
+		;;
+		touchpad_disabled)
+			do_set_touchpad_disabled
+		;;
+	esac
+	#get_config_value $key
+	echo 
+done
+
+echo 'configure completed! restarting laptop-tools ...'
+service laptop-tools restart
+
+
+

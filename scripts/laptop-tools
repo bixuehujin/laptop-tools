@@ -1,0 +1,154 @@
+#! /bin/bash
+
+### BEGIN INIT INFO
+# Provides:          laptop-tools
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start daemon at boot time
+# Description:       Enable service provided by daemon.
+### END INIT INFO
+
+function lookup_config_file() {
+	paths="/etc /usr/etc /usr/local/etc"
+	for path in $paths
+	do
+		file=$path/laptop-tools/lt.conf
+		if [ -r $file ]; then 
+			echo $file; exit 0
+		fi
+	done
+	exit 1;
+}
+
+
+function lookup_daemon_file() {
+	paths="/usr/share /usr/local/share"
+	for path in $paths
+	do
+		file=$path/laptop-tools/laptop-tools-daemon
+		if [ -r $file ] ; then
+			[ -x $file ] || chmod a+x $file
+			echo $file; exit 0
+		fi
+	done
+	exit 1
+}
+
+
+function do_print_help() {
+	echo "Usage: laptop-tools [--help|--daemon]"
+}
+
+
+function daemon_is_running() {
+	line=`ps -ef | grep laptop-tools-daemon | wc -l`
+	if [ $line -gt "1" ]; then
+		return 0
+	fi
+	return 1
+}
+
+
+
+function check_perm() {
+	user=`whoami`
+	if [ $user != 'root' ]; then
+		echo "you need super permission to run the program"
+		exit 1
+	fi
+}
+
+
+function do_start() {
+	check_perm
+	
+	if daemon_is_running ; then
+		echo "laptop-tools instance is running"
+		exit 1
+	fi 
+
+	config=`lookup_config_file`
+	daemon=`lookup_daemon_file`
+	
+	if $daemon --config $config $* ; then
+		echo "start laptop-tools successfull"
+	else
+		echo "start laptop-tools failed"
+	fi
+	 
+}
+
+
+function do_status() {
+	line=`ps -ef | grep laptop-tools-daemon | wc -l`
+	if [ $line -gt "1" ]; then
+		echo "laptop-tools is running";exit 1
+	else
+		echo "laptop-tools is not running";exit 0
+	fi
+}
+
+
+function do_stop() {
+	check_perm
+	daemon_is_running
+	if [ $? -eq 0 ];then 
+		pid=`ps -ef | grep laptop-tools-daemon | awk '{print $2}'  | head -1`
+		kill $pid > /dev/null
+		if [ $? -eq 0 ]; then
+			echo "laptop-tools instance stoped"
+		else
+			echo "stop laptop-tools instance failed"
+		fi
+	else
+		echo "no running laptop-tools-daemon instance."
+	fi
+}
+
+
+
+if [ "str$1" = "str" ] ; then
+	do_start
+else
+	case $1 in
+	--help|-h)
+		do_print_help
+	;;
+	--daemon|-d)
+		do_start --daemon
+	;;
+	--status|status)
+		do_status
+	;;
+
+	--stop|stop)
+		do_stop
+	;;
+
+	--restart|restart)
+		do_stop
+		do_start --daemon
+	;;
+	--start|start)
+		do_start --daemon
+	;;
+	--reload|reload)
+		echo "unimplemented"
+	;;
+	--version|-v)
+		`lookup_daemon_file`  --version
+	;;
+	--restore)
+		`lookup_daemon_file` --config `lookup_config_file` --restore
+	;;
+	*)
+		echo "unexpected argument"
+		do_print_help 
+	;;
+	esac
+	
+fi
+
+
